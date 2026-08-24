@@ -696,6 +696,31 @@
                             </environmentVariables>
                         </configuration>
                     </plugin>
+                    <!--
+                        Runs after surefire (agent generation) and before native-maven-plugin
+                        (merge-agent-files + test). NativeExtension binds those two goals to one
+                        execution, so this is the latest point a separate plugin can run.
+                    -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>patch-unsafe-allocated</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>${maven.multiModuleProjectDirectory}/scripts/PatchUnsafeAllocated.java</argument>
+                                        <argument>${project.build.directory}/native/agent-output</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>

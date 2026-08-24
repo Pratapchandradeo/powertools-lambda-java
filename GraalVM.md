@@ -58,7 +58,8 @@ mvn -Pnative test
 
 2. **Unsafe Allocation Tracing**
    - GraalVM 21.0.10+ requires `"unsafeAllocated": true` in `reflect-config.json` for classes instantiated via `Unsafe.allocateInstance()`. Mockito uses Objenesis which relies on this.
-   - The `enableExperimentalUnsafeAllocationTracing` option is enabled in the root `pluginManagement` agent configuration to address this.
+   - The tracing agent option `enableExperimentalUnsafeAllocationTracing` is enabled, but it does not emit that flag for Mockito/Objenesis on GraalVM 21.0.10+: the agent cannot intercept platform `Unsafe.allocateInstance()`.
+   - The `native` profile therefore patches generated test metadata after the agent runs: it sets `"unsafeAllocated": true` on `$MockitoMock$` entries under `target/native/agent-output`. Do not copy those Mockito types into published `src/main` metadata.
 
 3. **Log4j Compatibility**
    - Version 2.22.1 fails with this error
