@@ -15,6 +15,7 @@
 package software.amazon.lambda.powertools.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.SQSBatchResponse;
@@ -181,6 +182,35 @@ class SQSBatchProcessorTest {
         assertThat(batchItemFailure.getItemIdentifier()).isEqualTo("e9144555-9a4f-4ec3-99a0-34ce359b4b54");
         batchItemFailure = sqsBatchResponse.getBatchItemFailures().get(1);
         assertThat(batchItemFailure.getItemIdentifier()).isEqualTo("f9144555-9a4f-4ec3-99a0-34ce359b4b54");
+    }
+
+    @ParameterizedTest
+    @Event(value = "sqs_fifo_event.json", type = SQSEvent.class)
+    void parallelBatchProcessing_shouldThrow_whenFifoQueue(SQSEvent event) {
+        BatchMessageHandler<SQSEvent, SQSBatchResponse> handler = new BatchMessageHandlerBuilder()
+                .withSqsBatchHandler()
+                .buildWithRawMessageHandler(this::processMessageSucceeds);
+
+        assertThatThrownBy(() -> handler.processBatchInParallel(event, context))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("FIFO queues are not supported in parallel mode, use the processBatch method instead");
+    }
+
+    @ParameterizedTest
+    @Event(value = "sqs_fifo_event.json", type = SQSEvent.class)
+    void parallelBatchProcessingWithExecutor_shouldThrow_whenFifoQueue(SQSEvent event) {
+        BatchMessageHandler<SQSEvent, SQSBatchResponse> handler = new BatchMessageHandlerBuilder()
+                .withSqsBatchHandler()
+                .buildWithRawMessageHandler(this::processMessageSucceeds);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        try {
+            assertThatThrownBy(() -> handler.processBatchInParallel(event, context, executor))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("FIFO queues are not supported in parallel mode, use the processBatch method instead");
+        } finally {
+            executor.shutdown();
+        }
     }
 
 

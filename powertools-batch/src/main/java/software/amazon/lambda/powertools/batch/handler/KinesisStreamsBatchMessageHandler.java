@@ -14,25 +14,14 @@
 
 package software.amazon.lambda.powertools.batch.handler;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.KinesisEvent;
 import com.amazonaws.services.lambda.runtime.events.StreamsEventResponse;
 
-import software.amazon.lambda.powertools.batch.internal.MultiThreadMDC;
-import software.amazon.lambda.powertools.batch.internal.XRayTraceEntityPropagator;
 import software.amazon.lambda.powertools.utilities.EventDeserializer;
 
 /**
@@ -42,127 +31,40 @@ import software.amazon.lambda.powertools.utilities.EventDeserializer;
  *
  * @param <M> The user-defined type of the Kinesis record payload
  */
-public class KinesisStreamsBatchMessageHandler<M> implements BatchMessageHandler<KinesisEvent, StreamsEventResponse> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KinesisStreamsBatchMessageHandler.class);
-
-    private final BiConsumer<KinesisEvent.KinesisEventRecord, Context> rawMessageHandler;
-    private final BiConsumer<M, Context> messageHandler;
-    private final Class<M> messageClass;
-    private final Consumer<KinesisEvent.KinesisEventRecord> successHandler;
-    private final BiConsumer<KinesisEvent.KinesisEventRecord, Throwable> failureHandler;
+public class KinesisStreamsBatchMessageHandler<M> extends
+        AbstractBatchMessageHandler<KinesisEvent, KinesisEvent.KinesisEventRecord, M, StreamsEventResponse.BatchItemFailure, StreamsEventResponse> {
 
     public KinesisStreamsBatchMessageHandler(BiConsumer<KinesisEvent.KinesisEventRecord, Context> rawMessageHandler,
             BiConsumer<M, Context> messageHandler,
             Class<M> messageClass,
             Consumer<KinesisEvent.KinesisEventRecord> successHandler,
             BiConsumer<KinesisEvent.KinesisEventRecord, Throwable> failureHandler) {
-
-        this.rawMessageHandler = rawMessageHandler;
-        this.messageHandler = messageHandler;
-        this.messageClass = messageClass;
-        this.successHandler = successHandler;
-        this.failureHandler = failureHandler;
+        super(rawMessageHandler, messageHandler, messageClass, successHandler, failureHandler);
     }
 
     @Override
-    public StreamsEventResponse processBatch(KinesisEvent event, Context context) {
-        List<StreamsEventResponse.BatchItemFailure> batchItemFailures = event.getRecords()
-                .stream()
-                .map(eventRecord -> processBatchItem(eventRecord, context))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-
-        return StreamsEventResponse.builder().withBatchItemFailures(batchItemFailures).build();
+    protected List<KinesisEvent.KinesisEventRecord> getRecords(KinesisEvent event) {
+        return event.getRecords();
     }
 
     @Override
-    public StreamsEventResponse processBatchInParallel(KinesisEvent event, Context context) {
-        MultiThreadMDC multiThreadMDC = new MultiThreadMDC();
-        Object capturedSubsegment = XRayTraceEntityPropagator.captureTraceEntity();
-
-        List<StreamsEventResponse.BatchItemFailure> batchItemFailures = event.getRecords()
-                .parallelStream() // Parallel processing
-                .map(eventRecord -> {
-                    AtomicReference<Optional<StreamsEventResponse.BatchItemFailure>> result = new AtomicReference<>();
-
-                    XRayTraceEntityPropagator.runWithEntity(capturedSubsegment, () -> {
-                        multiThreadMDC.copyMDCToThread(Thread.currentThread().getName());
-                        try {
-                            result.set(processBatchItem(eventRecord, context));
-                        } finally {
-                            multiThreadMDC.removeThread(Thread.currentThread().getName());
-                        }
-                    });
-
-                    return result.get();
-                })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-
-        return StreamsEventResponse.builder().withBatchItemFailures(batchItemFailures).build();
+    protected StreamsEventResponse.BatchItemFailure createFailure(KinesisEvent.KinesisEventRecord eventRecord) {
+        return StreamsEventResponse.BatchItemFailure.builder()
+                .withItemIdentifier(eventRecord.getKinesis().getSequenceNumber()).build();
     }
 
     @Override
-    public StreamsEventResponse processBatchInParallel(KinesisEvent event, Context context, Executor executor) {
-        MultiThreadMDC multiThreadMDC = new MultiThreadMDC();
-        Object capturedSubsegment = XRayTraceEntityPropagator.captureTraceEntity();
-
-        List<StreamsEventResponse.BatchItemFailure> batchItemFailures = new ArrayList<>();
-        List<CompletableFuture<Void>> futures = event.getRecords().stream()
-                .map(eventRecord -> CompletableFuture.runAsync(() -> {
-                    XRayTraceEntityPropagator.runWithEntity(capturedSubsegment, () -> {
-                        multiThreadMDC.copyMDCToThread(Thread.currentThread().getName());
-                        try {
-                            Optional<StreamsEventResponse.BatchItemFailure> failureOpt = processBatchItem(eventRecord,
-                                    context);
-                            failureOpt.ifPresent(batchItemFailures::add);
-                        } finally {
-                            multiThreadMDC.removeThread(Thread.currentThread().getName());
-                        }
-                    });
-                }, executor))
-                .collect(Collectors.toList());
-        futures.forEach(CompletableFuture::join);
-        return StreamsEventResponse.builder().withBatchItemFailures(batchItemFailures).build();
+    protected StreamsEventResponse createResponse(List<StreamsEventResponse.BatchItemFailure> failures) {
+        return StreamsEventResponse.builder().withBatchItemFailures(failures).build();
     }
 
-    private Optional<StreamsEventResponse.BatchItemFailure> processBatchItem(
-            KinesisEvent.KinesisEventRecord eventRecord, Context context) {
-        try {
-            LOGGER.debug("Processing item {}", eventRecord.getEventID());
+    @Override
+    protected String getRecordIdentifier(KinesisEvent.KinesisEventRecord eventRecord) {
+        return eventRecord.getEventID();
+    }
 
-            if (this.rawMessageHandler != null) {
-                rawMessageHandler.accept(eventRecord, context);
-            } else {
-                M messageDeserialized = EventDeserializer.extractDataFrom(eventRecord).as(messageClass);
-                messageHandler.accept(messageDeserialized, context);
-            }
-
-            // Report success if we have a handler
-            if (this.successHandler != null) {
-                this.successHandler.accept(eventRecord);
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            String sequenceNumber = eventRecord.getEventID();
-            LOGGER.error("Error while processing record with eventID {}: {}, adding it to batch item failures",
-                    sequenceNumber, e.getMessage());
-            LOGGER.error("Error was", e);
-
-            // Report failure if we have a handler
-            if (this.failureHandler != null) {
-                // A failing failure handler is no reason to fail the batch
-                try {
-                    this.failureHandler.accept(eventRecord, e);
-                } catch (Exception e2) {
-                    LOGGER.warn("failureHandler threw handling failure", e2);
-                }
-            }
-
-            return Optional.of(StreamsEventResponse.BatchItemFailure.builder()
-                    .withItemIdentifier(eventRecord.getKinesis().getSequenceNumber()).build());
-        }
+    @Override
+    protected M deserialize(KinesisEvent.KinesisEventRecord eventRecord) {
+        return EventDeserializer.extractDataFrom(eventRecord).as(getMessageClass());
     }
 }

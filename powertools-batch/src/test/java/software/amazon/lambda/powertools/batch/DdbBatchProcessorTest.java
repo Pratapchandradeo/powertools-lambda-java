@@ -15,6 +15,7 @@
 package software.amazon.lambda.powertools.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
@@ -30,9 +31,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.mockito.Mock;
+import software.amazon.lambda.powertools.batch.exception.DeserializationNotSupportedException;
 import software.amazon.lambda.powertools.batch.handler.BatchMessageHandler;
+import software.amazon.lambda.powertools.batch.model.Product;
 
 class DdbBatchProcessorTest {
 
@@ -102,6 +106,15 @@ class DdbBatchProcessorTest {
         }
 
         return dynamodbBatchResponse;
+    }
+
+    @Test
+    void shouldThrowWhenBuildingHandlerWithMessageHandler() {
+        assertThatThrownBy(() -> new BatchMessageHandlerBuilder()
+                .withDynamoDbBatchHandler()
+                .buildWithMessageHandler(product -> {
+                }, Product.class))
+                .isInstanceOf(DeserializationNotSupportedException.class);
     }
 
     @ParameterizedTest
