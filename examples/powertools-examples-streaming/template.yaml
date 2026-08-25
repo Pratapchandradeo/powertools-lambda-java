@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Stream gzip CSV objects from S3 with powertools-streaming
+
+Globals:
+  Function:
+    Timeout: 60
+    Runtime: java11
+    MemorySize: 512
+    Tracing: Active
+
+Resources:
+  InputBucket:
+    Type: AWS::S3::Bucket
+
+  StreamingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: org.demo.streaming.S3CsvHandler::handleRequest
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref InputBucket
+      Events:
+        FileCreated:
+          Type: S3
+          Properties:
+            Bucket: !Ref InputBucket
+            Events: s3:ObjectCreated:*
+
+Outputs:
+  Bucket:
+    Description: Upload a .csv or .csv.gz object here
+    Value: !Ref InputBucket
+  Function:
+    Description: Streaming Lambda Function ARN
+    Value: !GetAtt StreamingFunction.Arn

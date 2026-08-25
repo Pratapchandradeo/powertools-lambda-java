@@ -43,6 +43,7 @@
         <module>validation-alb-event</module>
         <module>validation-apigw-event</module>
         <module>lambda-metadata</module>
+        <module>streaming</module>
     </modules>
 
     <dependencyManagement>
@@ -117,6 +118,11 @@
             <dependency>
                 <groupId>software.amazon.lambda</groupId>
                 <artifactId>powertools-lambda-metadata</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.lambda</groupId>
+                <artifactId>powertools-streaming</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
