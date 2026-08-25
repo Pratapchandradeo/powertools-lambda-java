@@ -12,21 +12,17 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry.handlers;
 
-public class SystemWrapper {
-    private SystemWrapper() {
-    }
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import software.amazon.lambda.powertools.tracing.opentelemetry.TracingOpenTelemetry;
 
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
+public class OtelHandlerEnabled implements RequestHandler<Object, Object> {
 
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
-
-    public static String getProperty(String name) {
-        return System.getProperty(name);
+    @Override
+    @TracingOpenTelemetry(namespace = "lambdaHandler")
+    public Object handleRequest(Object input, Context context) {
+        return "ok";
     }
 }

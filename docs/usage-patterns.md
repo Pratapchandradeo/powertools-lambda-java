@@ -94,6 +94,29 @@ This pattern works well when you want to keep your business logic clean and sepa
     }
     ```
 
+=== "Tracing (OpenTelemetry)"
+
+    ```java
+    import com.amazonaws.services.lambda.runtime.Context;
+    import com.amazonaws.services.lambda.runtime.RequestHandler;
+    import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+    import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+    import software.amazon.lambda.powertools.tracing.opentelemetry.TracingOpenTelemetry;
+
+    public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+        @TracingOpenTelemetry
+        public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+            return processPayment();
+        }
+
+        @TracingOpenTelemetry
+        private APIGatewayProxyResponseEvent processPayment() {
+            return new APIGatewayProxyResponseEvent().withStatusCode(200).withBody("Success");
+        }
+    }
+    ```
+
 ### Functional Approach
 
 If you prefer a more functional programming style or want to avoid AspectJ configuration, you can use the Powertools for AWS Lambda (Java) utilities directly in your code. This approach is more explicit and provides full control over how the utilities are applied.
@@ -174,6 +197,26 @@ This pattern is ideal when you want to avoid AspectJ setup or prefer a more impe
                 // Business logic here
             });
             return new APIGatewayProxyResponseEvent().withStatusCode(200).withBody("Success");
+        }
+    }
+    ```
+
+=== "Tracing (OpenTelemetry)"
+
+    ```java
+    import com.amazonaws.services.lambda.runtime.Context;
+    import com.amazonaws.services.lambda.runtime.RequestHandler;
+    import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+    import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+    import software.amazon.lambda.powertools.tracing.opentelemetry.TracerOpenTelemetry;
+
+    public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+        public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
+            return TracerOpenTelemetry.withSpan("processPayment", span -> {
+                span.setAttribute("operation", "payment");
+                return new APIGatewayProxyResponseEvent().withStatusCode(200).withBody("Success");
+            });
         }
     }
     ```

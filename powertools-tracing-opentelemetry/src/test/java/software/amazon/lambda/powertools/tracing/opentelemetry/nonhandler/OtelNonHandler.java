@@ -12,21 +12,19 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry.nonhandler;
 
-public class SystemWrapper {
-    private SystemWrapper() {
+import software.amazon.lambda.powertools.tracing.opentelemetry.TracingOpenTelemetry;
+
+public class OtelNonHandler {
+
+    @TracingOpenTelemetry
+    public String doSomething() {
+        return "done";
     }
 
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
-
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
-
-    public static String getProperty(String name) {
-        return System.getProperty(name);
+    @TracingOpenTelemetry(spanName = "custom")
+    public String doSomethingCustomName() {
+        return "custom";
     }
 }

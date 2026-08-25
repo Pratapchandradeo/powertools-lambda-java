@@ -12,21 +12,19 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry.context;
 
-public class SystemWrapper {
-    private SystemWrapper() {
-    }
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
+public interface TraceContextExtractor {
 
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
+    boolean supports(Object event);
 
-    public static String getProperty(String name) {
-        return System.getProperty(name);
+    ExtractedTraceContext extract(Object event, Context parentContext, TextMapPropagator propagator);
+
+    default void enrichSpan(Object event, Span span) {
+        // Optional semantic attributes for the event source
     }
 }

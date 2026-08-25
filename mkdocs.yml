@@ -12,6 +12,7 @@ nav:
   - Core utilities:
       - core/logging.md
       - core/tracing.md
+      - core/tracing-opentelemetry.md
       - core/metrics.md
   - Utilities:
       - utilities/idempotency.md
@@ -109,6 +110,7 @@ plugins:
           - core/logging.md
           - core/metrics.md
           - core/tracing.md
+          - core/tracing-opentelemetry.md
         Utilities:
           - utilities/idempotency.md
           - utilities/parameters.md

@@ -1,0 +1,19 @@
+[
+  {
+    "name": "software.amazon.lambda.powertools.tracing.opentelemetry.TracingOpenTelemetry",
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.tracing.opentelemetry.internal.TracingOpenTelemetryAspect",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.tracing.opentelemetry.internal.TracingOpenTelemetryUserAgentInterceptor",
+    "methods": [{"name": "<init>", "parameterTypes": []}]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.common.internal.LambdaHandlerProcessor",
+    "fields": [{"name": "isColdStart"}]
+  }
+]

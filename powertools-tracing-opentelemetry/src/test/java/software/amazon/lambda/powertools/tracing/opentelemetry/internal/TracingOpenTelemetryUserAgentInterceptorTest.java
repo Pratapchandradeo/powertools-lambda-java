@@ -12,21 +12,21 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry.internal;
 
-public class SystemWrapper {
-    private SystemWrapper() {
-    }
+import static org.assertj.core.api.Assertions.assertThat;
 
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
+import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
+class TracingOpenTelemetryUserAgentInterceptorTest {
 
-    public static String getProperty(String name) {
-        return System.getProperty(name);
+    @Test
+    void shouldConfigureUserAgentWhenCreatingAwsSdkClient() {
+        S3Client.builder().region(Region.US_EAST_1).build();
+
+        String userAgent = System.getProperty("sdk.ua.appId");
+        assertThat(userAgent).contains("PT/TRACING-OTEL/");
     }
 }

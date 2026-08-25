@@ -12,21 +12,20 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry;
 
-public class SystemWrapper {
-    private SystemWrapper() {
-    }
-
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
-
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
-
-    public static String getProperty(String name) {
-        return System.getProperty(name);
-    }
+/**
+ * How extracted remote contexts from batch event sources (for example SQS) are applied.
+ *
+ * <p>Configured with {@code POWERTOOLS_TRACE_CONTEXT_PROPAGATION_MODE}.</p>
+ */
+public enum TraceContextPropagationMode {
+    /**
+     * Use the first valid remote context as the parent of the handler span.
+     */
+    PARENT,
+    /**
+     * Start a new trace and add remote contexts as span links. Preferred for batches.
+     */
+    LINK
 }

@@ -6,6 +6,10 @@ description: Core utility
 The Tracing utility is an opinionated thin wrapper for [AWS X-Ray Java SDK](https://github.com/aws/aws-xray-sdk-java/)
 a provides functionality to reduce the overhead of performing common tracing tasks.
 
+???+ tip "Looking for OpenTelemetry?"
+    Use the optional [Tracing (OpenTelemetry)](tracing-opentelemetry.md) utility (`powertools-tracing-opentelemetry`)
+    instead of this module. Do not apply both `@Tracing` and `@TracingOpenTelemetry` on the same handler.
+
 ![Tracing showcase](../media/tracing_utility_showcase.png)
 
  **Key Features**

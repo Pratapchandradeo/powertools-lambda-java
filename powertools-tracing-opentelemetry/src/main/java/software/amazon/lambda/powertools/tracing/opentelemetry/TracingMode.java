@@ -12,21 +12,21 @@
  *
  */
 
-package software.amazon.lambda.powertools.common.internal;
+package software.amazon.lambda.powertools.tracing.opentelemetry;
 
-public class SystemWrapper {
-    private SystemWrapper() {
-    }
-
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
-
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
-
-    public static String getProperty(String name) {
-        return System.getProperty(name);
-    }
+/**
+ * How Powertools obtains an OpenTelemetry SDK.
+ */
+public enum TracingMode {
+    /**
+     * Use an already-configured global OpenTelemetry instance (ADOT Lambda layer,
+     * Java agent, or a user-registered SDK). If none is present, tracing is a no-op.
+     */
+    AUTO,
+    /**
+     * Use a Powertools Lambda-optimized SDK (OTLP exporter, W3C + X-Ray propagation)
+     * when no global instance is registered. If ADOT or the user already configured
+     * OpenTelemetry, that instance is reused.
+     */
+    MANUAL
 }

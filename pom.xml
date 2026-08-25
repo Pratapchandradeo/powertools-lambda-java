@@ -61,6 +61,7 @@
         <module>powertools-logging/powertools-logging-log4j</module>
         <module>powertools-logging/powertools-logging-logback</module>
         <module>powertools-tracing</module>
+        <module>powertools-tracing-opentelemetry</module>
         <module>powertools-metrics</module>
         <module>powertools-parameters</module>
         <module>powertools-validation</module>
@@ -119,6 +120,8 @@
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <crac.version>1.5.0</crac.version>
         <native-maven-plugin.version>0.11.5</native-maven-plugin.version>
+        <opentelemetry.version>1.54.1</opentelemetry.version>
+        <opentelemetry.aws.xray.propagator.version>1.46.0-alpha</opentelemetry.aws.xray.propagator.version>
 
         <!-- As we have a .mvn directory at the root of the project, this will evaluate to the root directory
             regardless of where maven is run - sub-module, or root. -->
@@ -183,6 +186,23 @@
                 <groupId>software.amazon.lambda</groupId>
                 <artifactId>powertools-tracing</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.lambda</groupId>
+                <artifactId>powertools-tracing-opentelemetry</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.contrib</groupId>
+                <artifactId>opentelemetry-aws-xray-propagator</artifactId>
+                <version>${opentelemetry.aws.xray.propagator.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>

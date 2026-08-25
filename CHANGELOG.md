@@ -10,6 +10,7 @@
 
 ## Features
 
+* add optional OpenTelemetry tracing module (`powertools-tracing-opentelemetry`) ([#1943](https://github.com/aws-powertools/powertools-lambda-java/issues/1943))
 * add CRaC priming support to powertools-kafka module ([#2145](https://github.com/aws-powertools/powertools-lambda-java/issues/2145))
 * **metrics:** introduce Metrics.flushMetrics ([#2154](https://github.com/aws-powertools/powertools-lambda-java/issues/2154))
 

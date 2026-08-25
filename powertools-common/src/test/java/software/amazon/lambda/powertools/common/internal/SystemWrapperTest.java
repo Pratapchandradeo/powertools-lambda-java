@@ -14,19 +14,22 @@
 
 package software.amazon.lambda.powertools.common.internal;
 
-public class SystemWrapper {
-    private SystemWrapper() {
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
+
+class SystemWrapperTest {
+
+    @Test
+    @SetEnvironmentVariable(key = "POWERTOOLS_TRACER_CAPTURE_RESPONSE", value = "true")
+    void containsKeyIsTrueWhenVariableIsPresent() {
+        assertThat(SystemWrapper.containsKey("POWERTOOLS_TRACER_CAPTURE_RESPONSE")).isTrue();
+        assertThat(SystemWrapper.getenv("POWERTOOLS_TRACER_CAPTURE_RESPONSE")).isEqualTo("true");
     }
 
-    public static String getenv(String name) {
-        return System.getenv(name);
-    }
-
-    public static boolean containsKey(String key) {
-        return System.getenv().containsKey(key);
-    }
-
-    public static String getProperty(String name) {
-        return System.getProperty(name);
+    @Test
+    void containsKeyIsFalseWhenVariableIsAbsent() {
+        assertThat(SystemWrapper.containsKey("POWERTOOLS_DOES_NOT_EXIST_" + System.nanoTime())).isFalse();
     }
 }
