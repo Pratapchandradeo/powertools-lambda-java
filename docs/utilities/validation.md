@@ -10,6 +10,9 @@ This utility provides JSON Schema validation for payloads held within events and
 * Validate incoming events and responses
 * Built-in validation for most common events (API Gateway, SNS, SQS, ...) and support for partial batch failures (SQS, Kinesis)
 * JMESPath support validate only a sub part of the event
+* GraalVM support
+
+When building a GraalVM native image, include any `classpath:` schema files (for example `schema.json`) in your application's `resource-config.json`. Powertools ships reachability metadata for the Validation utility itself; customer schema paths cannot be known at library build time.
 
 ## Install
 

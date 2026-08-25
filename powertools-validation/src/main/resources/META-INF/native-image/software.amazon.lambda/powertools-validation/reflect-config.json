@@ -1,0 +1,60 @@
+[
+  {
+    "name": "com.amazonaws.services.lambda.runtime.RequestHandler",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "com.networknt.schema.ValidationMessage",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {"name": "getMessage", "parameterTypes": []},
+      {"name": "getCode", "parameterTypes": []},
+      {"name": "getType", "parameterTypes": []},
+      {"name": "getInstanceLocation", "parameterTypes": []},
+      {"name": "getEvaluationPath", "parameterTypes": []},
+      {"name": "getSchemaLocation", "parameterTypes": []},
+      {"name": "getArguments", "parameterTypes": []},
+      {"name": "getDetails", "parameterTypes": []},
+      {"name": "getMessageKey", "parameterTypes": []}
+    ]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.Validation",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.ValidationConfig",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.ValidationUtils",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.ValidationUtils$ValidationErrors",
+    "allDeclaredFields": true,
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      {"name": "getValidationErrors", "parameterTypes": []}
+    ]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.internal.ValidationAspect",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [{"name": "<init>", "parameterTypes": []}]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.validation.internal.ValidationUserAgentInterceptor",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [{"name": "<init>", "parameterTypes": []}]
+  }
+]

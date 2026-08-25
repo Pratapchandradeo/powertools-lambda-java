@@ -60,6 +60,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import software.amazon.lambda.powertools.common.stubs.TestLambdaContext;
 import software.amazon.lambda.powertools.validation.Validation;
 import software.amazon.lambda.powertools.validation.ValidationConfig;
 import software.amazon.lambda.powertools.validation.ValidationException;
@@ -82,9 +83,8 @@ class ValidationAspectTest {
     @Mock
     Signature signature;
     @Mock
-    private Context context;
-    @Mock
     private ProceedingJoinPoint pjp;
+    private final Context context = new TestLambdaContext();
     private ValidationAspect validationAspect = new ValidationAspect();
 
     private static Stream<Arguments> provideEventAndEventType() {

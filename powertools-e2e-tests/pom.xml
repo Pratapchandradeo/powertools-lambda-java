@@ -258,6 +258,8 @@
                                 <include>**/TracingE2ET.java</include>
                                 <include>**/IdempotencyE2ET.java</include>
                                 <include>**/LambdaMetadataE2ET.java</include>
+                                <include>**/ValidationApiGWE2ET.java</include>
+                                <include>**/ValidationALBE2ET.java</include>
                             </includes>
                             <systemPropertyVariables>
                                 <graalvm.enabled>true</graalvm.enabled>

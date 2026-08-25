@@ -132,9 +132,42 @@
             <artifactId>s3</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.lambda</groupId>
+            <artifactId>powertools-common</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
+        <profile>
+            <id>native</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.mockito</groupId>
+                    <artifactId>mockito-subclass</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <configuration>
+                            <imageName>powertools-validation</imageName>
+                            <agent>
+                                <metadataCopy>
+                                    <outputDirectory>src/main/resources/META-INF/native-image/software.amazon.lambda/powertools-validation</outputDirectory>
+                                </metadataCopy>
+                            </agent>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>generate-classesloaded-file</id>
             <build>
@@ -154,4 +187,13 @@
             </build>
         </profile>
     </profiles>
+
+    <build>
+        <resources>
+            <!-- GraalVM Native Image Configuration Files -->
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
 </project>

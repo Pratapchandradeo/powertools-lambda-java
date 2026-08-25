@@ -1,0 +1,16 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Qlog4j2.xml\\E"
+      },
+      {
+        "pattern": "\\Qvalidation/inbound_schema.json\\E"
+      },
+      {
+        "pattern": "\\Qvalidation/outbound_schema.json\\E"
+      }
+    ]
+  },
+  "bundles": []
+}

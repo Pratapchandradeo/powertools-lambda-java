@@ -1,0 +1,13 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Qlog4j2.xml\\E"
+      },
+      {
+        "pattern": "\\Qschema.json\\E"
+      }
+    ]
+  },
+  "bundles": []
+}

@@ -24,6 +24,8 @@ Each example can be copied from its subdirectory and used independently of the r
   * [SAM](./powertools-examples-serialization/sam)
   * [SAM GraalVM](./powertools-examples-serialization/sam-graalvm)
 * [powertools-examples-validation](powertools-examples-validation) - Uses the validation module to validate user requests received via API Gateway
+  * [SAM](./powertools-examples-validation)
+  * [SAM GraalVM](./powertools-examples-validation/sam-graalvm)
 * [powertools-examples-cloudformation](powertools-examples-cloudformation) - Deploys a Cloudformation custom resource
 * [powertools-examples-batch](powertools-examples-batch) - Examples for each of the different batch processing deployments
 * [powertools-examples-kafka](powertools-examples-kafka) - Examples for Kafka event processing
