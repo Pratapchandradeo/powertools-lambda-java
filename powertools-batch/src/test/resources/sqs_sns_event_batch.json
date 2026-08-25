@@ -1,0 +1,36 @@
+{
+  "Records": [
+    {
+      "messageId": "dummy-message-id",
+      "receiptHandle": "dummy-receipt-handle",
+      "eventSourceARN": "arn:aws:sqs:region:account-id:dummy-queue",
+      "eventSource": "aws:sqs",
+      "awsRegion": "dummy-region",
+      "body": "{\"Type\": \"Notification\",\"MessageId\": \"dummy-sns-message-id\",\"TopicArn\": \"arn:aws:sns:region:account-id:dummy-topic\",\"Message\": \"{\\\"field\\\": \\\"dummy\\\", \\\"name\\\": \\\"dummy-name\\\"}\",\"Timestamp\": \"2000-01-01T00:00:00.000Z\",\"SignatureVersion\": \"1\",\"Signature\": \"dummy-signature\",\"SigningCertURL\": \"https://sns.region.amazonaws.com/dummy-cert.pem\",\"UnsubscribeURL\": \"https://sns.region.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:region:account-id:dummy-topic:dummy-subscription\"}",
+      "md5OfBody": "dummy-md5",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "0000000000000",
+        "SenderId": "dummy-sender-id",
+        "ApproximateFirstReceiveTimestamp": "0000000000000"
+      },
+      "messageAttributes": {}
+    },
+    {
+      "messageId": "e9144555-9a4f-4ec3-99a0-34ce359b4b54",
+      "receiptHandle": "dummy-receipt-handle-2",
+      "eventSourceARN": "arn:aws:sqs:region:account-id:dummy-queue",
+      "eventSource": "aws:sqs",
+      "awsRegion": "dummy-region",
+      "body": "{\"Type\": \"Notification\",\"MessageId\": \"dummy-sns-message-id-2\",\"TopicArn\": \"arn:aws:sns:region:account-id:dummy-topic\",\"Message\": \"{\\\"field\\\": \\\"fail\\\", \\\"name\\\": \\\"fail-name\\\"}\",\"Timestamp\": \"2000-01-01T00:00:00.000Z\",\"SignatureVersion\": \"1\",\"Signature\": \"dummy-signature\",\"SigningCertURL\": \"https://sns.region.amazonaws.com/dummy-cert.pem\",\"UnsubscribeURL\": \"https://sns.region.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:region:account-id:dummy-topic:dummy-subscription\"}",
+      "md5OfBody": "dummy-md5-2",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "0000000000000",
+        "SenderId": "dummy-sender-id",
+        "ApproximateFirstReceiveTimestamp": "0000000000000"
+      },
+      "messageAttributes": {}
+    }
+  ]
+}

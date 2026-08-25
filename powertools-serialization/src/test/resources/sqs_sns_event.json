@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "dummy-message-id",
+      "receiptHandle": "dummy-receipt-handle",
+      "eventSourceARN": "arn:aws:sqs:region:account-id:dummy-queue",
+      "eventSource": "aws:sqs",
+      "awsRegion": "dummy-region",
+      "body": "{\"Type\": \"Notification\",\"MessageId\": \"dummy-sns-message-id\",\"TopicArn\": \"arn:aws:sns:region:account-id:dummy-topic\",\"Message\": \"{\\\"field\\\": \\\"dummy\\\", \\\"name\\\": \\\"dummy-name\\\"}\",\"Timestamp\": \"2000-01-01T00:00:00.000Z\",\"SignatureVersion\": \"1\",\"Signature\": \"dummy-signature\",\"SigningCertURL\": \"https://sns.region.amazonaws.com/dummy-cert.pem\",\"UnsubscribeURL\": \"https://sns.region.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:region:account-id:dummy-topic:dummy-subscription\"}",
+      "md5OfBody": "dummy-md5",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "0000000000000",
+        "SenderId": "dummy-sender-id",
+        "ApproximateFirstReceiveTimestamp": "0000000000000"
+      },
+      "messageAttributes": {}
+    }
+  ]
+}

@@ -35,6 +35,7 @@ import software.amazon.lambda.powertools.batch.handler.BatchMessageHandler;
 abstract class AbstractBatchMessageHandlerBuilder<T, C, E, R> {
     protected BiConsumer<T, Throwable> failureHandler;
     protected Consumer<T> successHandler;
+    protected String envelope;
 
     /**
      * Provides an (Optional!) success handler. A success handler is invoked
@@ -67,6 +68,22 @@ abstract class AbstractBatchMessageHandlerBuilder<T, C, E, R> {
      */
     public C withFailureHandler(BiConsumer<T, Throwable> handler) {
         this.failureHandler = handler;
+        return getThis();
+    }
+
+    /**
+     * Optional JMESPath envelope applied to each record before deserializing
+     * the payload. When unset, the built-in one-level unwrap is used.
+     * <p>
+     * For SNS notifications delivered through SQS, use
+     * {@link software.amazon.lambda.powertools.utilities.EventPaths#SQS_SNS}.
+     * The path is relative to a single record, not the full batch event.
+     *
+     * @param envelope JMESPath expression, or null/blank for the default unwrap
+     * @return This builder
+     */
+    public C withEnvelope(String envelope) {
+        this.envelope = envelope;
         return getThis();
     }
 
@@ -130,6 +147,26 @@ abstract class AbstractBatchMessageHandlerBuilder<T, C, E, R> {
      */
     public <M> BatchMessageHandler<E, R> buildWithMessageHandler(Consumer<M> handler, Class<M> messageClass) {
         return buildWithMessageHandler((f, c) -> handler.accept(f), messageClass);
+    }
+
+    /**
+     * Same as {@link #buildWithMessageHandler(Consumer, Class)} with a JMESPath envelope
+     * applied to each record before deserialization.
+     */
+    public <M> BatchMessageHandler<E, R> buildWithMessageHandler(Consumer<M> handler, Class<M> messageClass,
+                                                                 String envelope) {
+        this.envelope = envelope;
+        return buildWithMessageHandler(handler, messageClass);
+    }
+
+    /**
+     * Same as {@link #buildWithMessageHandler(BiConsumer, Class)} with a JMESPath envelope
+     * applied to each record before deserialization.
+     */
+    public <M> BatchMessageHandler<E, R> buildWithMessageHandler(BiConsumer<M, Context> handler, Class<M> messageClass,
+                                                                 String envelope) {
+        this.envelope = envelope;
+        return buildWithMessageHandler(handler, messageClass);
     }
 
 

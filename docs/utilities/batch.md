@@ -31,7 +31,8 @@ stateDiagram-v2
 * Reports batch item failures to reduce number of retries for a record upon errors
 * Simple interface to process each batch record
 * Parallel processing of batches
-* Integrates with Java Events library and the deserialization module 
+* Integrates with Java Events library and the deserialization module
+* Unwrap nested payloads (for example SNS messages delivered through SQS) with a JMESPath envelope
 * Build your own batch processor by extending primitives
 
 **Background**
@@ -657,6 +658,92 @@ In general, the deserialized message handler should be used unless you need acce
         // Do something with the deserialized message
     }
     
+    ```
+
+### Nested events (SNS to SQS)
+
+When SNS publishes to SQS, and SQS triggers Lambda, each SQS `body` is an SNS notification, not your payload.
+The deserialized message handler unwraps only the SQS body by default, so you still have an SNS envelope
+(`Type`, `Message`, `MessageId`, ...) to parse yourself.
+
+Pass a [JMESPath](https://jmespath.org/tutorial.html){target="_blank"} envelope so each record is unwrapped to your type
+in one step. Built-in expressions live in `EventPaths`. For SNS notifications in a single SQS record, use
+`EventPaths.SQS_SNS` (`powertools_json(body).Message`).
+
+The path is applied to **one SQS message**, not the full `SQSEvent`. Batch already loops the records.
+
+If deserialization fails, that item is reported as a batch failure, the same as any other deserialize error.
+
+You can also pass a custom expression, for example `powertools_json(body).detail` for EventBridge events on SQS.
+See [JMESPath functions](serialization.md#jmespath-functions) for `powertools_json` and related helpers.
+
+!!! note
+    When no envelope is set, behavior is unchanged: the SQS body is deserialized directly to your class.
+
+=== "SNS to SQS handler"
+
+    ```java hl_lines="7 16-17"
+    import com.amazonaws.services.lambda.runtime.Context;
+    import com.amazonaws.services.lambda.runtime.RequestHandler;
+    import com.amazonaws.services.lambda.runtime.events.SQSBatchResponse;
+    import com.amazonaws.services.lambda.runtime.events.SQSEvent;
+    import software.amazon.lambda.powertools.batch.BatchMessageHandlerBuilder;
+    import software.amazon.lambda.powertools.batch.handler.BatchMessageHandler;
+    import software.amazon.lambda.powertools.utilities.EventPaths;
+
+    public class SqsSnsBatchHandler implements RequestHandler<SQSEvent, SQSBatchResponse> {
+
+        private final BatchMessageHandler<SQSEvent, SQSBatchResponse> handler;
+
+        public SqsSnsBatchHandler() {
+            handler = new BatchMessageHandlerBuilder()
+                    .withSqsBatchHandler()
+                    .withEnvelope(EventPaths.SQS_SNS)
+                    .buildWithMessageHandler(this::processMessage, Product.class);
+        }
+
+        @Override
+        public SQSBatchResponse handleRequest(SQSEvent sqsEvent, Context context) {
+            return handler.processBatch(sqsEvent, context);
+        }
+
+        private void processMessage(Product product, Context context) {
+            // Process the product from the SNS Message field
+        }
+    }
+    ```
+
+=== "Three-arg builder"
+
+    ```java hl_lines="3"
+    handler = new BatchMessageHandlerBuilder()
+            .withSqsBatchHandler()
+            .buildWithMessageHandler(this::processMessage, Product.class, EventPaths.SQS_SNS);
+    ```
+
+=== "SNS to SQS example event"
+
+    ```json hl_lines="9"
+    {
+      "Records": [
+        {
+          "messageId": "dummy-message-id",
+          "receiptHandle": "dummy-receipt-handle",
+          "eventSourceARN": "arn:aws:sqs:region:account-id:dummy-queue",
+          "eventSource": "aws:sqs",
+          "awsRegion": "dummy-region",
+          "body": "{\"Type\": \"Notification\",\"MessageId\": \"dummy-sns-message-id\",\"TopicArn\": \"arn:aws:sns:region:account-id:dummy-topic\",\"Message\": \"{\\\"id\\\": 1234, \\\"name\\\": \\\"product\\\", \\\"price\\\": 42}\",\"Timestamp\": \"2000-01-01T00:00:00.000Z\",\"SignatureVersion\": \"1\",\"Signature\": \"dummy-signature\",\"SigningCertURL\": \"https://sns.region.amazonaws.com/dummy-cert.pem\",\"UnsubscribeURL\": \"https://sns.region.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:region:account-id:dummy-topic:dummy-subscription\"}",
+          "md5OfBody": "dummy-md5",
+          "attributes": {
+            "ApproximateReceiveCount": "1",
+            "SentTimestamp": "0000000000000",
+            "SenderId": "dummy-sender-id",
+            "ApproximateFirstReceiveTimestamp": "0000000000000"
+          },
+          "messageAttributes": {}
+        }
+      ]
+    }
     ```
 
 ### Success and failure handlers

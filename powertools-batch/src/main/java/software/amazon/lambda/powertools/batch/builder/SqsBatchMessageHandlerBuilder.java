@@ -50,7 +50,8 @@ public class SqsBatchMessageHandlerBuilder extends AbstractBatchMessageHandlerBu
                 messageClass,
                 null,
                 successHandler,
-                failureHandler
+                failureHandler,
+                envelope
         );
     }
 

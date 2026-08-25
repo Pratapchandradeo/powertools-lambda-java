@@ -11,6 +11,7 @@ This module contains a set of utilities you may use in your Lambda functions, to
 
 * Easily deserialize the main content of an event (for example, the body of an API Gateway event)
 * 15+ built-in events (see the [list below](#built-in-events))
+* Unwrap nested payloads with a JMESPath envelope (for example SNS messages delivered through SQS)
 
 ### Getting started
 
@@ -246,6 +247,60 @@ It can also handle a collection of elements like the records of an SQS event:
 | `KinesisAnalyticsFirehoseInputPreprocessingEvent` | `Records[*].kinesis.powertools_base64(data)`              | x    | 
 | `KinesisAnalyticsStreamsInputPreprocessingEvent`  | `Records[*].kinesis.powertools_base64(data)`              | x    | 
 
+### Nested events
+
+Built-in extraction is one level deep. When the meaningful payload is nested further, for example an SNS
+notification inside an SQS `body` — pass a [JMESPath](https://jmespath.org/tutorial.html){target="_blank"} envelope
+to `extractDataFrom(object, envelope)`.
+
+When `envelope` is `null` or blank, this is the same as `extractDataFrom(object)`. When set, the envelope is applied
+to the object as JSON and the built-in unwrap is skipped.
+
+The path is relative to **the object you pass in**. Batch deserializes one `SQSEvent.SQSMessage` at a time, so use a
+per-record path such as `EventPaths.SQS_SNS` (`powertools_json(body).Message`), not `Records[0]...`.
+
+You can pass a custom expression for other combinations, for example `powertools_json(body).detail` for EventBridge
+events on SQS. The same JMESPath functions used by [validation](validation.md) and [idempotency](idempotency.md)
+apply here. [Batch processing](batch.md#nested-events-sns-to-sqs) can pass the envelope through `withEnvelope`.
+
+=== "SNS in SQS"
+
+    ```java hl_lines="1 2 8"
+    import static software.amazon.lambda.powertools.utilities.EventDeserializer.extractDataFrom;
+    import software.amazon.lambda.powertools.utilities.EventPaths;
+
+    public class SqsSnsHandler implements RequestHandler<SQSEvent, String> {
+
+        public String handleRequest(final SQSEvent event, final Context context) {
+            SQSEvent.SQSMessage message = event.getRecords().get(0);
+            Product product = extractDataFrom(message, EventPaths.SQS_SNS).as(Product.class);
+            return "OK";
+        }
+    }
+    ```
+
+=== "event"
+
+    ```json hl_lines="6"
+    {
+      "Records": [
+        {
+          "messageId": "dummy-message-id",
+          "receiptHandle": "dummy-receipt-handle",
+          "body": "{\"Type\": \"Notification\",\"MessageId\": \"dummy-sns-message-id\",\"TopicArn\": \"arn:aws:sns:region:account-id:dummy-topic\",\"Message\": \"{\\\"id\\\": 1234, \\\"name\\\": \\\"product\\\", \\\"price\\\": 42}\"}",
+          "eventSource": "aws:sqs",
+          "eventSourceARN": "arn:aws:sqs:region:account-id:dummy-queue",
+          "awsRegion": "dummy-region"
+        }
+      ]
+    }
+    ```
+
+**Built-in envelopes**
+
+| Constant | Use when | Path |
+|----------|----------|------|
+| `EventPaths.SQS_SNS` | One `SQSEvent.SQSMessage` whose `body` is an SNS notification | `powertools_json(body).Message` |
 
 ## JMESPath functions
 
@@ -261,7 +316,7 @@ It can also handle a collection of elements like the records of an SQS event:
 
 You might have events that contain encoded JSON payloads as string, base64, or even in compressed format. It is a common use case to decode and extract them partially or fully as part of your Lambda function invocation.
 
-You will generally use this in combination with other Powertools for AWS Lambda (Java) modules ([validation](validation.md) and [idempotency](idempotency.md)) where you might need to extract a portion of your data before using them.
+You will generally use this in combination with other Powertools for AWS Lambda (Java) modules ([validation](validation.md), [idempotency](idempotency.md), and [batch](batch.md#nested-events-sns-to-sqs)) where you might need to extract a portion of your data before using them.
 
 ### Built-in functions
 

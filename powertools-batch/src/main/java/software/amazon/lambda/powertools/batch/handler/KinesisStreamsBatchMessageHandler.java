@@ -50,18 +50,29 @@ public class KinesisStreamsBatchMessageHandler<M> implements BatchMessageHandler
     private final Class<M> messageClass;
     private final Consumer<KinesisEvent.KinesisEventRecord> successHandler;
     private final BiConsumer<KinesisEvent.KinesisEventRecord, Throwable> failureHandler;
+    private final String envelope;
 
     public KinesisStreamsBatchMessageHandler(BiConsumer<KinesisEvent.KinesisEventRecord, Context> rawMessageHandler,
             BiConsumer<M, Context> messageHandler,
             Class<M> messageClass,
             Consumer<KinesisEvent.KinesisEventRecord> successHandler,
             BiConsumer<KinesisEvent.KinesisEventRecord, Throwable> failureHandler) {
+        this(rawMessageHandler, messageHandler, messageClass, successHandler, failureHandler, null);
+    }
+
+    public KinesisStreamsBatchMessageHandler(BiConsumer<KinesisEvent.KinesisEventRecord, Context> rawMessageHandler,
+            BiConsumer<M, Context> messageHandler,
+            Class<M> messageClass,
+            Consumer<KinesisEvent.KinesisEventRecord> successHandler,
+            BiConsumer<KinesisEvent.KinesisEventRecord, Throwable> failureHandler,
+            String envelope) {
 
         this.rawMessageHandler = rawMessageHandler;
         this.messageHandler = messageHandler;
         this.messageClass = messageClass;
         this.successHandler = successHandler;
         this.failureHandler = failureHandler;
+        this.envelope = envelope;
     }
 
     @Override
@@ -136,7 +147,7 @@ public class KinesisStreamsBatchMessageHandler<M> implements BatchMessageHandler
             if (this.rawMessageHandler != null) {
                 rawMessageHandler.accept(eventRecord, context);
             } else {
-                M messageDeserialized = EventDeserializer.extractDataFrom(eventRecord).as(messageClass);
+                M messageDeserialized = EventDeserializer.extractDataFrom(eventRecord, envelope).as(messageClass);
                 messageHandler.accept(messageDeserialized, context);
             }
 

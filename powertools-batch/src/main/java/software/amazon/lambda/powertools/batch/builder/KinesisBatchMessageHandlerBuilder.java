@@ -48,7 +48,8 @@ public class KinesisBatchMessageHandlerBuilder
                 messageHandler,
                 messageClass,
                 successHandler,
-                failureHandler);
+                failureHandler,
+                envelope);
     }
 
     @Override

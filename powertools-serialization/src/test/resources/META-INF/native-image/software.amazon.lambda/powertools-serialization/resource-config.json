@@ -46,6 +46,8 @@
     "pattern":"\\Qsqs_event.json\\E"
   }, {
     "pattern":"\\Qsqs_event_no_body.json\\E"
+  }, {
+    "pattern":"\\Qsqs_sns_event.json\\E"
   }]},
   "bundles":[]
 }

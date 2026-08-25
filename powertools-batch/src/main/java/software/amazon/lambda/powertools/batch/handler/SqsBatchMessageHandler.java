@@ -54,16 +54,26 @@ public class SqsBatchMessageHandler<M> implements BatchMessageHandler<SQSEvent, 
     private final BiConsumer<SQSEvent.SQSMessage, Context> rawMessageHandler;
     private final Consumer<SQSEvent.SQSMessage> successHandler;
     private final BiConsumer<SQSEvent.SQSMessage, Throwable> failureHandler;
+    private final String envelope;
 
     public SqsBatchMessageHandler(BiConsumer<M, Context> messageHandler, Class<M> messageClass,
             BiConsumer<SQSEvent.SQSMessage, Context> rawMessageHandler,
             Consumer<SQSEvent.SQSMessage> successHandler,
             BiConsumer<SQSEvent.SQSMessage, Throwable> failureHandler) {
+        this(messageHandler, messageClass, rawMessageHandler, successHandler, failureHandler, null);
+    }
+
+    public SqsBatchMessageHandler(BiConsumer<M, Context> messageHandler, Class<M> messageClass,
+            BiConsumer<SQSEvent.SQSMessage, Context> rawMessageHandler,
+            Consumer<SQSEvent.SQSMessage> successHandler,
+            BiConsumer<SQSEvent.SQSMessage, Throwable> failureHandler,
+            String envelope) {
         this.messageHandler = messageHandler;
         this.messageClass = messageClass;
         this.rawMessageHandler = rawMessageHandler;
         this.successHandler = successHandler;
         this.failureHandler = failureHandler;
+        this.envelope = envelope;
     }
 
     @Override
@@ -174,7 +184,7 @@ public class SqsBatchMessageHandler<M> implements BatchMessageHandler<SQSEvent, 
             if (this.rawMessageHandler != null) {
                 rawMessageHandler.accept(message, context);
             } else {
-                M messageDeserialized = EventDeserializer.extractDataFrom(message).as(messageClass);
+                M messageDeserialized = EventDeserializer.extractDataFrom(message, envelope).as(messageClass);
                 messageHandler.accept(messageDeserialized, context);
             }
 

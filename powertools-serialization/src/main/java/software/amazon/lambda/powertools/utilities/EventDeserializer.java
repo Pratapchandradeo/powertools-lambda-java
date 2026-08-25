@@ -36,8 +36,11 @@ import com.amazonaws.services.lambda.runtime.events.ScheduledEvent;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -162,8 +165,77 @@ public class EventDeserializer {
     }
 
     /**
+     * Extract a part of a Lambda event using a JMESPath envelope, then deserialize
+     * with {@link EventPart#as(Class)} or {@link EventPart#asListOf(Class)}.
+     * <p>
+     * When {@code envelope} is {@code null} or blank, this is equivalent to
+     * {@link #extractDataFrom(Object)}. When set, the envelope is applied to the
+     * object as JSON and the built-in one-level unwrap is skipped.
+     *
+     * @param object   the event or record to extract from
+     * @param envelope JMESPath expression, for example {@link EventPaths#SQS_SNS}
+     * @return the part of the event selected by the envelope
+     */
+    public static EventPart extractDataFrom(Object object, String envelope) {
+        if (envelope == null || envelope.isBlank()) {
+            return extractDataFrom(object);
+        }
+        if (object == null) {
+            throw new IllegalStateException("Event content is null: the event may be malformed (missing fields)");
+        }
+        try {
+            JsonNode result = JsonConfig.get().getJmesPath().compile(envelope).search(toJsonNode(object));
+            return eventPartFromJsonNode(result);
+        } catch (EventDeserializationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new EventDeserializationException("Cannot apply envelope <" + envelope + "> to the object", e);
+        }
+    }
+
+    private static JsonNode toJsonNode(Object object) throws IOException {
+        ObjectMapper mapper = JsonConfig.get().getObjectMapper();
+        if (object instanceof String) {
+            return mapper.readTree((String) object);
+        }
+        if (object instanceof JsonNode) {
+            return (JsonNode) object;
+        }
+        return mapper.valueToTree(object);
+    }
+
+    private static EventPart eventPartFromJsonNode(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            throw new EventDeserializationException("Envelope not found in the object");
+        }
+        if (node.isTextual()) {
+            return new EventPart(node.asText());
+        }
+        if (node.isArray()) {
+            List<String> values = new ArrayList<>();
+            for (JsonNode item : node) {
+                if (item == null || item.isNull()) {
+                    values.add(null);
+                } else if (item.isTextual()) {
+                    values.add(item.asText());
+                } else {
+                    values.add(item.toString());
+                }
+            }
+            return new EventPart(values);
+        }
+        if (node.isObject()) {
+            return new EventPart(JsonConfig.get().getObjectMapper()
+                    .convertValue(node, new TypeReference<Map<String, Object>>() {
+                    }));
+        }
+        return new EventPart(node.asText());
+    }
+
+    /**
      * Meaningful part of a Lambda event.<br/>
-     * Use {@link #extractDataFrom(Object)} to retrieve an instance of this class.
+     * Use {@link #extractDataFrom(Object)} or {@link #extractDataFrom(Object, String)}
+     * to retrieve an instance of this class.
      */
     public static class EventPart {
         private Map<String, Object> contentMap;
