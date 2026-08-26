@@ -16,6 +16,7 @@ package software.amazon.lambda.powertools.parameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,8 +35,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.BatchGetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.BatchGetSecretValueResponse;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+import software.amazon.awssdk.services.secretsmanager.model.SecretValueEntry;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -64,6 +68,9 @@ class ParamProvidersIntegrationTest {
 
     @Captor
     ArgumentCaptor<GetSecretValueRequest> secretsCaptor;
+
+    @Captor
+    ArgumentCaptor<BatchGetSecretValueRequest> batchSecretsCaptor;
 
     @Test
     void ssmProvider_get() {
@@ -125,6 +132,32 @@ class ParamProvidersIntegrationTest {
 
         assertThat(secretsProvider.get("keys")).isEqualTo(expectedValue); // second time is from cache
         verify(secretsManagerClient, times(1)).getSecretValue(any(GetSecretValueRequest.class));
+    }
+
+    @Test
+    void secretsProvider_getMultiple() {
+        SecretsProvider secretsProvider = SecretsProvider.builder()
+                .withClient(secretsManagerClient)
+                .build();
+
+        BatchGetSecretValueResponse response = BatchGetSecretValueResponse.builder()
+                .secretValues(
+                        SecretValueEntry.builder().name("db-password").secretString("secret-db").build(),
+                        SecretValueEntry.builder().name("api-key").secretString("secret-api").build())
+                .build();
+        when(secretsManagerClient.batchGetSecretValue(batchSecretsCaptor.capture())).thenReturn(response);
+
+        Map<String, String> secrets = secretsProvider.getMultiple(List.of("db-password", "api-key"));
+
+        assertThat(batchSecretsCaptor.getValue().secretIdList()).containsExactly("db-password", "api-key");
+        assertThat(secrets).contains(
+                MapEntry.entry("db-password", "secret-db"),
+                MapEntry.entry("api-key", "secret-api"));
+        assertThat(secretsProvider.get("db-password")).isEqualTo("secret-db");
+
+        secretsProvider.getMultiple(List.of("db-password", "api-key"));
+        verify(secretsManagerClient, times(1)).batchGetSecretValue(any(BatchGetSecretValueRequest.class));
+        verify(secretsManagerClient, never()).getSecretValue(any(GetSecretValueRequest.class));
     }
 
 }

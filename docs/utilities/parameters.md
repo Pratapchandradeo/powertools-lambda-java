@@ -122,6 +122,7 @@ This utility requires additional permissions to work as expected. See the table 
 | SSM       | `SSMProvider.getMultiple(String)`                                       | `ssm:GetParametersByPath`                                                 |
 | SSM       | If using `withDecryption(true)`                                         | You must add an additional permission `kms:Decrypt`                       |
 | Secrets   | `SecretsProvider.get(String)` `SecretsProvider.get(String, Class)`      | `secretsmanager:GetSecretValue`                                           |
+| Secrets   | `SecretsProvider.getMultiple(List)`                                     | `secretsmanager:BatchGetSecretValue` and `secretsmanager:GetSecretValue` for each secret |
 | DynamoDB  | `DynamoDBProvider.get(String)` `DynamoDBProvider.getMultiple(string)`   | `dynamodb:GetItem` `dynamoDB:Query`                                       |
 | AppConfig | `AppConfigProvider.get(String)` `AppConfigProvider.getMultiple(string)` | `appconfig:StartConfigurationSession`, `appConfig:GetLatestConfiguration` |
 
@@ -179,9 +180,34 @@ This section describes the built-in provider classes for each parameter store. F
         public String handleRequest(String input, Context context) {
             // Retrieve a single secret
             String value = secretsProvider.get("/my/secret");
+
+            // Retrieve multiple secrets in one BatchGetSecretValue call
+            // Map<String, String> secrets = secretsProvider.getMultiple(List.of("/my/secret-a", "/my/secret-b"));
     
             // ... do something with the secretParam here
             return "something";
+        }
+    }
+    ```
+
+=== "Batch retrieval"
+
+    `getMultiple(List)` is a Secrets Manager special case. Path-based `getMultiple(String)` is not supported.
+    Transformation is not applied to batch results. Each value is cached so a later `get(name)` can reuse it.
+
+    ```java hl_lines="14-16"
+    import java.time.temporal.ChronoUnit;
+    import java.util.List;
+    import java.util.Map;
+    import software.amazon.lambda.powertools.parameters.secrets.SecretsProvider;
+
+    public class RequestHandlerWithBatchSecrets {
+        SecretsProvider secretsProvider = SecretsProvider.builder().build();
+
+        public Map<String, String> loadSecrets() {
+            return secretsProvider
+                    .withMaxAge(1, ChronoUnit.MINUTES)
+                    .getMultiple(List.of("/my/secret-a", "/my/secret-b"));
         }
     }
     ```
