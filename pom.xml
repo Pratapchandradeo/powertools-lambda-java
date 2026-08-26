@@ -64,6 +64,7 @@
         <module>powertools-metrics</module>
         <module>powertools-parameters</module>
         <module>powertools-validation</module>
+        <module>powertools-feature-flags</module>
         <module>powertools-cloudformation</module>
         <module>powertools-idempotency</module>
         <module>powertools-large-messages</module>
@@ -182,6 +183,16 @@
             <dependency>
                 <groupId>software.amazon.lambda</groupId>
                 <artifactId>powertools-tracing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.lambda</groupId>
+                <artifactId>powertools-feature-flags</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.lambda</groupId>
+                <artifactId>powertools-parameters-appconfig</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

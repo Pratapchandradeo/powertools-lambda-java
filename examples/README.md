@@ -20,6 +20,8 @@ Each example can be copied from its subdirectory and used independently of the r
 * [powertools-examples-parameters](powertools-examples-parameters) - Uses the parameters module to provide runtime parameters to a function
   * [SAM](./powertools-examples-parameters/sam)
   * [SAM GraalVM](./powertools-examples-parameters/sam-graalvm)
+* [powertools-examples-feature-flags](powertools-examples-feature-flags/sam) - Evaluates AppConfig feature flags from an API request context
+  * [SAM](./powertools-examples-feature-flags/sam)
 * [powertools-examples-serialization](powertools-examples-serialization) - Uses the serialization module to serialize and deserialize API Gateway & SQS payloads
   * [SAM](./powertools-examples-serialization/sam)
   * [SAM GraalVM](./powertools-examples-serialization/sam-graalvm)

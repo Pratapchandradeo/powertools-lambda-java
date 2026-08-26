@@ -1,0 +1,80 @@
+[
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.FeatureFlags",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      { "name": "builder", "parameterTypes": [] },
+      { "name": "evaluate", "parameterTypes": ["java.lang.String", "java.lang.Object"] },
+      { "name": "evaluate", "parameterTypes": ["java.lang.String", "java.util.Map", "java.lang.Object"] },
+      { "name": "getEnabledFeatures", "parameterTypes": [] },
+      { "name": "getEnabledFeatures", "parameterTypes": ["java.util.Map"] },
+      { "name": "getConfiguration", "parameterTypes": [] },
+      { "name": "beforeCheckpoint", "parameterTypes": ["org.crac.Context"] },
+      { "name": "afterRestore", "parameterTypes": ["org.crac.Context"] }
+    ]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.FeatureFlagsBuilder",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.internal.FeatureFlagsUserAgentInterceptor",
+    "methods": [{ "name": "<init>", "parameterTypes": [] }]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.store.StoreProvider",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.store.AppConfigStore",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.store.AppConfigStoreBuilder",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.store.InMemoryStore",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true,
+    "methods": [
+      { "name": "fromJson", "parameterTypes": ["java.lang.String"] },
+      { "name": "fromMap", "parameterTypes": ["java.util.Map"] }
+    ]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.store.JsonConfigurationParser",
+    "queryAllDeclaredMethods": true,
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.schema.SchemaValidator",
+    "queryAllDeclaredMethods": true,
+    "methods": [{ "name": "validate", "parameterTypes": ["java.util.Map"] }]
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.schema.RuleAction",
+    "queryAllDeclaredMethods": true,
+    "queryAllPublicMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.schema.FeatureSchema",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.comparators.ConditionMatcher",
+    "queryAllDeclaredMethods": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.exception.ConfigurationStoreException",
+    "queryAllDeclaredConstructors": true
+  },
+  {
+    "name": "software.amazon.lambda.powertools.featureflags.exception.SchemaValidationException",
+    "queryAllDeclaredConstructors": true
+  }
+]

@@ -26,6 +26,7 @@ on:
         - 'powertools-logging/**'
         - 'powertools-metrics/**'
         - 'powertools-parameters/**'
+        - 'powertools-feature-flags/**'
         - 'powertools-serialization/**'
         - 'powertools-sqs/**'
         - 'powertools-tracing/**'

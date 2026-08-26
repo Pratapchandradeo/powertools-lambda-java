@@ -6,10 +6,12 @@
 
 ## Documentation
 
+* **feature-flags:** add Feature Flags utility docs, SAM example, and RFC write-up ([#1086](https://github.com/aws-powertools/powertools-lambda-java/issues/1086))
 * **logger:** Fix logging environment variables names in documentation ([#2161](https://github.com/aws-powertools/powertools-lambda-java/issues/2161))
 
 ## Features
 
+* **feature-flags:** add Feature Flags module with Python-compatible schema ([#1086](https://github.com/aws-powertools/powertools-lambda-java/issues/1086))
 * add CRaC priming support to powertools-kafka module ([#2145](https://github.com/aws-powertools/powertools-lambda-java/issues/2145))
 * **metrics:** introduce Metrics.flushMetrics ([#2154](https://github.com/aws-powertools/powertools-lambda-java/issues/2154))
 

@@ -40,6 +40,7 @@
         <module>idempotency-functional</module>
         <module>idempotency-generics</module>
         <module>parameters</module>
+        <module>feature-flags</module>
         <module>validation-alb-event</module>
         <module>validation-apigw-event</module>
         <module>lambda-metadata</module>
@@ -97,6 +98,11 @@
             <dependency>
                 <groupId>software.amazon.lambda</groupId>
                 <artifactId>powertools-parameters-appconfig</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.lambda</groupId>
+                <artifactId>powertools-feature-flags</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

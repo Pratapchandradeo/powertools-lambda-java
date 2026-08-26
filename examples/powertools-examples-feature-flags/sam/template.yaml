@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Feature flags demo
+
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: java11
+    MemorySize: 512
+    Tracing: Active
+
+Resources:
+  FeatureFlagsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: org.demo.featureflags.FeatureFlagsFunction::handleRequest
+      MemorySize: 512
+      Tracing: Active
+      Environment:
+        Variables:
+          LOG_LEVEL: INFO
+          POWERTOOLS_SERVICE_NAME: feature-flags
+          POWERTOOLS_APPCONFIG_APPLICATION: !Ref FeatureStoreApp
+          POWERTOOLS_APPCONFIG_ENVIRONMENT: !Ref FeatureStoreDevEnv
+          POWERTOOLS_APPCONFIG_NAME: features
+      Policies:
+        - Statement:
+            - Sid: AppConfigReadPolicy
+              Effect: Allow
+              Action:
+                - appconfig:StartConfigurationSession
+                - appconfig:GetLatestConfiguration
+              Resource: '*'
+      Events:
+        Evaluate:
+          Type: Api
+          Properties:
+            Path: /flags
+            Method: get
+
+  FeatureStoreApp:
+    Type: AWS::AppConfig::Application
+    Properties:
+      Description: AppConfig Application for feature flags example
+      Name: powertools-java-feature-flags
+  FeatureStoreDevEnv:
+    Type: AWS::AppConfig::Environment
+    Properties:
+      ApplicationId: !Ref FeatureStoreApp
+      Description: Development Environment for the feature flags example
+      Name: dev
+  FeatureStoreConfigProfile:
+    Type: AWS::AppConfig::ConfigurationProfile
+    Properties:
+      ApplicationId: !Ref FeatureStoreApp
+      Name: features
+      LocationUri: hosted
+  HostedConfigVersion:
+    Type: AWS::AppConfig::HostedConfigurationVersion
+    Properties:
+      ApplicationId: !Ref FeatureStoreApp
+      ConfigurationProfileId: !Ref FeatureStoreConfigProfile
+      Description: Sample feature-flag document
+      ContentType: application/json
+      Content: |
+        {
+          "premium_features": {
+            "default": false,
+            "rules": {
+              "customer tier equals premium": {
+                "when_match": true,
+                "conditions": [
+                  { "action": "EQUALS", "key": "tier", "value": "premium" }
+                ]
+              }
+            }
+          },
+          "ten_percent_off_campaign": {
+            "default": true
+          },
+          "geo_customer_campaign": {
+            "default": false,
+            "rules": {
+              "customer in temporary discount geo": {
+                "when_match": true,
+                "conditions": [
+                  {
+                    "action": "KEY_IN_VALUE",
+                    "key": "country",
+                    "value": ["NL", "IE", "UK", "PL", "PT"]
+                  }
+                ]
+              }
+            }
+          }
+        }
+  ConfigDeployment:
+    Type: AWS::AppConfig::Deployment
+    Properties:
+      ApplicationId: !Ref FeatureStoreApp
+      ConfigurationProfileId: !Ref FeatureStoreConfigProfile
+      ConfigurationVersion: !Ref HostedConfigVersion
+      DeploymentStrategyId: AppConfig.AllAtOnce
+      EnvironmentId: !Ref FeatureStoreDevEnv
+
+Outputs:
+  FeatureFlagsApi:
+    Description: "API Gateway endpoint URL for Prod stage for Feature Flags function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/flags/"
+  FeatureFlagsFunction:
+    Description: "Feature Flags Lambda Function ARN"
+    Value: !GetAtt FeatureFlagsFunction.Arn

@@ -39,6 +39,7 @@
         <module>powertools-examples-idempotency/sam-graalvm</module>
         <module>powertools-examples-parameters/sam</module>
         <module>powertools-examples-parameters/sam-graalvm</module>
+        <module>powertools-examples-feature-flags/sam</module>
         <module>powertools-examples-serialization/sam</module>
         <module>powertools-examples-serialization/sam-graalvm</module>
         <module>powertools-examples-kafka</module>
