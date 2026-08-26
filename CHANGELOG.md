@@ -11,6 +11,7 @@
 ## Features
 
 * add CRaC priming support to powertools-kafka module ([#2145](https://github.com/aws-powertools/powertools-lambda-java/issues/2145))
+* **logger:** add optional System.Logger facade ([#2245](https://github.com/aws-powertools/powertools-lambda-java/issues/2245))
 * **metrics:** introduce Metrics.flushMetrics ([#2154](https://github.com/aws-powertools/powertools-lambda-java/issues/2154))
 
 ## Maintenance

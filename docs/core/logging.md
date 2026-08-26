@@ -942,6 +942,46 @@ with `logError` param or via `POWERTOOLS_LOGGER_LOG_ERROR` env var.
 
 ## Advanced
 
+### Using System.Logger
+
+SLF4J (`LoggerFactory.getLogger`) is the default emit API. You can optionally emit with the JDK
+[`System.Logger`](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.Logger.html){target="_blank"}
+instead. When `powertools-logging` is on the classpath, `System.getLogger(...)` is routed to the same
+Log4j2 or Logback backend, so `@Logging` / `PowertoolsLogging`, MDC keys, and `StructuredArguments` still apply.
+
+=== "PaymentFunction.java"
+
+    ```java hl_lines="1 2 8 13 14"
+    import static java.lang.System.Logger.Level.INFO;
+    import static software.amazon.lambda.powertools.logging.argument.StructuredArguments.entry;
+
+    import org.slf4j.MDC;
+    import software.amazon.lambda.powertools.logging.Logging;
+
+    public class PaymentFunction implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+        private static final System.Logger LOG = System.getLogger(PaymentFunction.class.getName());
+
+        @Logging
+        public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent input, final Context context) {
+            MDC.put("cardNumber", card.getId());
+            LOG.log(INFO, "Processing order {0}", order.getOrderId(), entry("order", order));
+            return new APIGatewayProxyResponseEvent().withStatusCode(200);
+        }
+    }
+    ```
+
+???+ warning "Use `{0}` placeholders, not SLF4J `{}`"
+    `System.Logger` formats messages with `java.text.MessageFormat`. Pass `StructuredArguments` as extra
+    parameters; they are serialized into JSON and are not format arguments.
+
+???+ warning "Do not add another `LoggerFinder`"
+    The JVM loads a single `java.lang.System.LoggerFinder`. Do not also add `slf4j-jdk-platform-logging`
+    or `log4j-jpl`. Frameworks that ship their own finder (for example Quarkus) may take precedence.
+
+???+ info "This does not remove SLF4J or shrink the deployment package"
+    `slf4j-api` and a Log4j2 or Logback backend remain required for structured JSON, buffering, and
+    `POWERTOOLS_LOG_LEVEL`. Custom request keys still use `MDC.put`.
+
 ### Buffering logs
 
 Log buffering enables you to buffer logs for a specific request or invocation. Enable log buffering by configuring the `BufferingAppender` in your logging configuration. You can buffer logs at the `WARNING`, `INFO` or `DEBUG` level, and flush them automatically on error or manually as needed.

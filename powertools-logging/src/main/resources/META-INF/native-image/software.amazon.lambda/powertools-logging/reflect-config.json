@@ -260,6 +260,15 @@
   "queryAllPublicMethods":true
 },
 {
+  "name":"software.amazon.lambda.powertools.logging.internal.PowertoolsLoggerFinder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"software.amazon.lambda.powertools.logging.internal.PowertoolsSystemLogger",
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
   "name":"software.amazon.lambda.powertools.logging.internal.TestLoggingManager",
   "allDeclaredClasses":true,
   "queryAllDeclaredMethods":true,

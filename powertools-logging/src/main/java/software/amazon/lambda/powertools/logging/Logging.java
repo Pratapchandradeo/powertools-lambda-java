@@ -59,6 +59,11 @@ import java.lang.annotation.Target;
  *
  * <p>To append additional keys to each log entry you can either use {@link org.slf4j.MDC#put(String, String)}
  * or {@link software.amazon.lambda.powertools.logging.argument.StructuredArguments}</p>
+ *
+ * <p>Log statements can be emitted with {@code org.slf4j.LoggerFactory} (recommended) or
+ * {@link System#getLogger(String)}. {@code System.Logger} uses {@link java.text.MessageFormat}
+ * placeholders ({@code {0}}) and still relies on MDC and {@code StructuredArguments} for
+ * additional keys.</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
