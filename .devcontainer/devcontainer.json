@@ -1,0 +1,88 @@
+// This file tells GitHub Codespaces (and VS Code Dev Containers) how to build
+// a ready-to-use workspace. You do not need to install Java or Maven yourself.
+//
+// Why this exists:
+// Issue #1335 asked for a cloud IDE so new contributors can start faster.
+// Gitpod Classic is gone, so we use the standard Dev Container format instead.
+//
+// What this workspace is for:
+// Library modules, unit tests, and Checkstyle. Not for e2e tests, GraalVM,
+// example apps (SAM/CDK/Terraform), or the docs site.
+//
+// Format details: https://aka.ms/devcontainer.json
+{
+  "name": "Powertools Java",
+
+  // Official Microsoft Java 11 image (Debian bookworm).
+  // The "1-11-..." tag tracks security fixes without pinning one old digest.
+  // We use JDK 11 because this repo compiles to Java 11 (see pom.xml).
+  "image": "mcr.microsoft.com/devcontainers/java:1-11-bookworm",
+
+  "features": {
+    // The image already has JDK 11. version "none" means "do not install
+    // another JDK". We only ask this feature to add Maven.
+    // This repo has no Maven Wrapper (no ./mvnw), so Maven must be installed.
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "true",
+      "installGradle": "false"
+    }
+  },
+
+  // This is a large multi-module Maven project. A 2-core Codespace is too small.
+  // GitHub treats this as a hint when it picks a machine size.
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb"
+  },
+
+  // Give Maven more heap so a full library compile is less likely to run out
+  // of memory on the Codespace.
+  "remoteEnv": {
+    "MAVEN_OPTS": "-Xmx2g"
+  },
+
+  // Runs once when the container is first created (also during a prebuild,
+  // if maintainers ever turn prebuilds on).
+  //
+  // We install the library modules only:
+  // - skip tests so create stays reasonably fast
+  // - skip examples (demo apps, not the library)
+  // - skip e2e modules (they need an AWS account)
+  //
+  // Paths match the <module> entries in the root pom.xml.
+  "onCreateCommand": "mvn -B -DskipTests install -pl '!examples,!powertools-e2e-tests,!powertools-e2e-tests/handlers'",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Java language support, Maven, debugger, and tests.
+        "vscjava.vscode-java-pack",
+        // Reads the same checkstyle.xml that IntelliJ uses locally.
+        "shengchen.vscode-checkstyle",
+        // Optional AWS helpers (Lambda, credentials). Not required for unit tests.
+        "amazonwebservices.aws-toolkit-vscode"
+      ],
+      "settings": {
+        // Reload the Maven project when pom.xml changes.
+        "java.configuration.updateBuildConfiguration": "automatic",
+        // Same style file as CONTRIBUTING.md (IntelliJ CheckStyle-IDEA).
+        "java.checkstyle.configuration": "${workspaceFolder}/checkstyle.xml"
+      }
+    },
+    "codespaces": {
+      // Open the contributor guide first so people see how to work and how to
+      // run the quality check before a PR.
+      "openFiles": ["CONTRIBUTING.md"]
+    },
+    // Optional. Codespaces uses VS Code, not IntelliJ.
+    // These plugin ids help if someone later opens the same Dev Container
+    // with a JetBrains IDE (for example Ona). We do not support that path.
+    "jetbrains": {
+      "plugins": [
+        "CheckStyle-IDEA",
+        "aws.toolkit"
+      ]
+    }
+  }
+}

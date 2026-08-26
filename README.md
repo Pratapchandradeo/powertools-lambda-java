@@ -177,6 +177,13 @@ The following companies, among others, use Powertools:
 - **Powertools for AWS Lambda on Discord**: `#java` - **[Invite link](https://discord.gg/B8zZKbbyET)**
 - **Email**: <aws-powertools-maintainers@amazon.com>
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up a workspace and send a pull request.
+
+You can work locally in IntelliJ IDEA, or open a [GitHub Codespace](https://docs.github.com/en/codespaces) from **your fork**.
+The cloud workspace is defined in [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json).
+
 ## Security disclosures
 
 If you think you’ve found a potential security issue, please do not post it in the Issues.  Instead, please follow the instructions [here](https://aws.amazon.com/security/vulnerability-reporting/) or [email AWS security directly](mailto:aws-security@amazon.com).

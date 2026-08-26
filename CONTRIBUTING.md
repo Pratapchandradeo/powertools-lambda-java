@@ -5,6 +5,8 @@
     - [Reporting Bugs/Feature Requests](#reporting-bugsfeature-requests)
     - [Contributing via Pull Requests](#contributing-via-pull-requests)
         - [Dev setup](#dev-setup)
+            - [Cloud environment (GitHub Codespaces)](#cloud-environment-github-codespaces)
+            - [Local setup (IntelliJ)](#local-setup-intellij)
         - [Local documentation](#local-documentation)
     - [Conventions](#conventions)
         - [General terminology and practices](#general-terminology-and-practices)
@@ -46,10 +48,40 @@ Contributions via pull requests are much appreciated. Before sending us a pull r
 
 ### Dev setup
 
-We recommend using [IntelliJ IDEA](https://www.jetbrains.com/idea/) from JetBrains. 
+You can work in the cloud (no local Java install) or on your machine.
+
+#### Cloud environment (GitHub Codespaces)
+
+<!--
+  This is the cloud path for issue #1335.
+  Gitpod Classic is gone, so we use GitHub Codespaces and a Dev Container instead.
+  IntelliJ is still the recommended local IDE (see the next section).
+-->
+
+Use this if you want a ready JDK 11 + Maven workspace in the browser.
+
+The workspace is defined in [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json).
+It uses JDK 11 (this repo compiles to Java 11) and points Checkstyle at [`checkstyle.xml`](checkstyle.xml).
+
+1. [Fork the repository](https://github.com/aws-powertools/powertools-lambda-java/fork).
+2. On **your fork**, click **Code → Codespaces → Create codespace on main**.
+   Do not create the codespace on the upstream `aws-powertools` repo — you will not be able to push your branch.
+3. Wait until the container finishes setup. The first start installs library modules and skips tests.
+   Example apps and end-to-end tests are skipped on purpose (they need extra tools or an AWS account).
+4. Create a branch and work as usual.
+5. Before you open a pull request, run: `mvn clean verify -P build-with-spotbugs`
+
+Codespaces on a personal GitHub account has a free monthly quota, then it can cost money.
+Stop or delete the codespace when you are done.
+
+IntelliJ IDEA remains the recommended **local** IDE. Codespaces uses VS Code in the browser or desktop.
+
+#### Local setup (IntelliJ)
+
+We recommend using [IntelliJ IDEA](https://www.jetbrains.com/idea/) from JetBrains.
 A community version is available and largely enough for our purpose.
 
-#### Code Formatting
+##### Code Formatting
 
 We strongly recommend installing the CheckStyle-IDEA plugin and apply the provided [checkstyle.xml](checkstyle.xml) in order to comply with our formatting rules: 
 
@@ -63,7 +95,7 @@ We strongly recommend installing the CheckStyle-IDEA plugin and apply the provid
 4. Apply the reformat, optimize imports, rearrange and cleanup to your code and only to java files:
 ![](docs/media/intellij_checkstyle_3.png)
 
-#### License headers
+##### License headers
 All the java files should contain the licence/copyright header. You can copy paste it from the [license-header](license-header) file.
 
 ### Creating the pull request
@@ -125,6 +157,14 @@ If you discover a potential security issue in this project we ask that you notif
 
 ## Troubleshooting
 
+### Codespaces
+
+- **Create the codespace from your fork**, not from `aws-powertools/powertools-lambda-java`.
+  A codespace on the upstream repo cannot push a contributor branch.
+- If Java or Maven looks wrong, rebuild the container: Command Palette → **Codespaces: Rebuild Container**.
+- If Maven runs out of memory, use at least a 4-core / 8 GB codespace. The Dev Container already sets `MAVEN_OPTS=-Xmx2g`.
+- If you hit the free Codespaces quota, stop unused codespaces, or use the [local IntelliJ setup](#local-setup-intellij).
+- Docs preview (`make docs-local-docker`) and end-to-end tests are not part of the default Codespace. Use a local machine (and an AWS account for e2e).
 
 ## Licensing
 

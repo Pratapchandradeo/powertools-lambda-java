@@ -12,6 +12,23 @@ description: Process
 This is document explains who the maintainers are, their responsibilities, and how they should be doing it. If you're interested in contributing,
  see [CONTRIBUTING](https://github.com/aws-powertools/powertools-lambda-java/blob/main/CONTRIBUTING.md){target="_blank"}.
 
+## Cloud contributor environment
+
+<!-- This section is for maintainers. Contributors should follow CONTRIBUTING.md. -->
+
+The cloud workspace for new contributors is **GitHub Codespaces**, defined by
+[`.devcontainer/devcontainer.json`](../../.devcontainer/devcontainer.json){target="_blank"}.
+
+That file replaces the old Gitpod idea from [issue #1335](https://github.com/aws-powertools/powertools-lambda-java/issues/1335){target="_blank"}.
+Do not add `.gitpod.yml`. Gitpod Classic is no longer a supported product.
+
+Keep this setup small:
+
+* Codespaces is for library work and unit tests, not a replacement for CI.
+* Do not turn on organization-paid Codespaces or prebuilds unless the team agrees on the cost.
+* Do not add Docker, GraalVM, SAM, or e2e tools to the default container unless there is a clear need.
+* Dependabot updates the Dev Container image monthly (see `.github/dependabot.yml`).
+
 ## Current Maintainers
 
 | Maintainer      | GitHub ID                                                            | Affiliation |

@@ -24,3 +24,12 @@ updates:
     labels:
       - "maven"
       - "dependencies"
+
+  # Keep the Codespaces / Dev Container base image and features up to date.
+  # Monthly is enough — this is not application code.
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    commit-message:
+      prefix: chore
